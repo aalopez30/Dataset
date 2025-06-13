@@ -1,16 +1,24 @@
-import psutil
 import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 
-# Recolectar procesos activos
-process_data = []
-for proc in psutil.process_iter(attrs=["pid", "name", "username", "cpu_percent", "memory_percent"]):
-    try:
-        info = proc.info
-        process_data.append(info)
-    except (psutil.NoSuchProcess, psutil.AccessDenied):
-        continue
+# URL RAW desde GitHub
+url = "https://github.com/aalopez30/Dataset/blob/a7a3a07658564cbfc0672d0b838a0618a9e00420/procesos_activos.csv?raw=true"
 
-# Convertir a DataFrame
-df = pd.DataFrame(process_data)
-df.to_csv("procesos_activos.csv", index=False)
-print("Archivo procesos_activos.csv generado con éxito.")
+# Leer CSV
+df = pd.read_csv(url)
+df = df.dropna()
+df = df.drop_duplicates()
+
+# Estadísticas básicas
+print("Media:\n", df.mean(numeric_only=True))
+print("\nMediana:\n", df.median(numeric_only=True))
+print("\nModa:\n", df.mode(numeric_only=True).iloc[0])
+print("\nDesviación estándar:\n", df.std(numeric_only=True))
+
+# Correlación
+plt.figure(figsize=(6,4))
+sns.heatmap(df.corr(numeric_only=True), annot=True, cmap="coolwarm")
+plt.title("Matriz de Correlación entre Variables")
+plt.tight_layout()
+plt.show()
